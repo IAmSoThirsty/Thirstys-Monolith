@@ -1,53 +1,51 @@
-# 🏛️ Thirty's Monolith
+# 🏛️ Thirty's Monolith: Schematic Guardian
 
-![Build Status](https://img.shields.io/badge/Build-Passing-success?style=for-the-badge&logo=github)
-![Security](https://img.shields.io/badge/Security-Hardened-blue?style=for-the-badge&logo=github-actions)
-![AI Agent](https://img.shields.io/badge/AI-Codex%20Deus%20Maximus-purple?style=for-the-badge)
+![Build Status](https://img.shields.io/badge/Schematic-Enforced-success?style=for-the-badge&logo=github)
+![Security](https://img.shields.io/badge/Integrity-Verified-blue?style=for-the-badge&logo=github-actions)
+![Agent](https://img.shields.io/badge/Agent-Codex%20Deus%20Maximus-purple?style=for-the-badge)
 
-**One Workflow to Rule Them All.**
+**The Strict Enforcer for Repository Integrity.**
 
-Thirty's Monolith is a unified, self-contained CI/CD pipeline that replaces 15+ disparate workflow files. It orchestrates AI agents, security audits, polyglot testing, and cloud deployment in a single, synchronized stream.
+Thirty's Monolith is a specialized, self-correcting CI/CD pipeline designed to maintain absolute schematic control over your codebase. It uses a custom AI agent to strictly enforce folder structure, file formatting, and syntax standards before allowing any build to proceed.
 
 ---
 
 ## ⚡ System Architecture
 
-The Monolith operates in **6 Synchronized Battalions**:
+The pipeline operates in **3 Strict Stages**:
 
-| Battalion | Function | Tools Used |
+| Stage | Job Name | Function |
 | :--- | :--- | :--- |
-| **1. Codex Deus Maximus** | *AI Auto-Correction* | Custom Python Agent (`codex_deus_maximus.py`) wakes up to fix code logic and style before tests run. |
-| **2. Security Gate** | *Vulnerability Scanning* | **CodeQL** (Logic), **Super-Linter** (Style), **Pip Audit** (Python Deps), **NPM Audit** (Node Deps). |
-| **3. Polyglot Build** | *Build & Test* | Matrix strategy handling **Python** (Pytest/Cerberus), **Node.js** (Webpack), **Android** (Gradle), and **Docker**. |
-| **4. Triage Agents** | *Community Management* | AI Issue Summarizer, Auto-Labeler, First-Interaction Greeter. |
-| **5. Deployment** | *Release Management* | **Datadog Synthetics** (Pre-flight), **Google Cloud Run** (Production). |
-| **6. Maintenance** | *Janitorial* | Nightly stale issue closure and dependency checks. |
+| **1. Enforcement** | `🤖 Schematic Guardian` | The **Codex Deus Maximus** agent wakes up, scans the entire repository, and auto-corrects formatting (tabs, newlines) while validating Python syntax. If the required folder structure is broken, the build fails immediately. |
+| **2. Integrity** | `🛡️ Verify Integrity` | Runs **CodeQL** (Logic Analysis) and **Pip Audit** (Dependency Security) to ensure the code is safe and robust. |
+| **3. Validation** | `🏗️ Validate Functions` | A polyglot matrix that builds and tests the actual code artifacts (**Python/Pytest**, **Node/Webpack**, **Android/Gradle**). |
 
 ---
 
 ## 🚀 Installation & Setup
 
-### 1. The Monolith File
-Ensure the master script is placed at:
+### 1. The Monolith Workflow
+Ensure the master enforcement script is placed at:
 `.github/workflows/thirtys-monolith.yml`
 
-### 2. The AI Agent
-The workflow relies on your custom agent to self-heal the repository. Ensure the source code is present at:
+### 2. The Guardian Agent
+The workflow relies on your custom agent to perform the audit. Ensure the source code is present at:
 `src/app/agents/codex_deus_maximus.py`
 
-### 3. Required Secrets
-Go to **Settings > Secrets and variables > Actions** and add:
+### 3. Required Directory Schematic
+The Guardian enforces the existence of these core directories. Your build **will fail** if they are missing:
+* `.github/workflows/`
+* `src/`
 
-* `DD_API_KEY` (Datadog API)
-* `DD_APP_KEY` (Datadog App Key)
-* `GCP_WORKLOAD_IDENTITY_PROVIDER` (Google Cloud Auth)
-* `CODACY_PROJECT_TOKEN` (Optional: If using Codacy)
+---
 
-### 4. Configuration
-Open `thirtys-monolith.yml` and update the environment variables section with your project details:
+## 🛠️ Enforcement Rules
+The **Schematic Guardian** automatically applies the following rules on every push:
+1.  **Python:** Converts tabs to 4 spaces; strips trailing whitespace; ensures valid syntax.
+2.  **Docs/Config:** Ensures UNIX line endings (`\n`) for `.md`, `.json`, and `.yml` files.
+3.  **General:** Ensures every file ends with a single newline character.
 
-```yaml
-env:
-  PROJECT_ID: 'your-gcp-project-id'
-  REGION: 'us-central1'
-  SERVICE: 'project-ai-service'
+---
+
+## 📄 License
+MIT License © 2025 Thirstys-Hub
