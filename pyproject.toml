@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools>=68.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "thirstys-monolith"
+version = "1.0.0"
+description = "Strict Enforcer for Repository Integrity - Schematic Guardian"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {file = "LICENSE.txt"}
+authors = [
+    {name = "Thirstys-Hub"}
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+]
+
+dependencies = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pip-audit>=2.6.0",
+    "flake8>=6.1.0",
+    "black>=23.7.0",
+    "pylint>=2.17.5",
+    "mypy>=1.4.1",
+    "typing-extensions>=4.7.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ipython>=8.14.0",
+    "ipdb>=0.13.13",
+    "sphinx>=7.1.0",
+    "sphinx-rtd-theme>=1.3.0",
+    "setuptools>=68.0.0",
+    "wheel>=0.41.0",
+    "build>=0.10.0",
+]
+
+[project.scripts]
+schematic-guardian = "src.app.agents.codex_deus_maximus:create_codex"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "--cov=src --cov-report=html --cov-report=term-missing"
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[tool.pylint.messages_control]
+max-line-length = 100

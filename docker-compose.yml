@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  schematic-guardian:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: thirstys-monolith
+    volumes:
+      - .:/app
+      - ./data:/app/data
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: >
+      bash -c "
+        echo '🤖 Schematic Guardian Starting...' &&
+        python -c '
+        from src.app.agents.codex_deus_maximus import create_codex
+        import json
+        agent = create_codex()
+        report = agent.run_schematic_enforcement()
+        print(json.dumps(report, indent=2))
+        '
+      "
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: thirstys-monolith-test
+    volumes:
+      - .:/app
+    command: >
+      bash -c "
+        pytest --cov=src -v
+      "
