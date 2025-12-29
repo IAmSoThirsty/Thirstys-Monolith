@@ -1,0 +1,62 @@
+name: Thirty's Constructor
+
+on:
+  push:
+    branches:
+      - 'master'  # Specific to your renamed branch
+    paths:
+      # It watches these specific files in the root
+      - 'Thirstys_Monolith'
+      - 'Thirstys_Monolith.yml'
+      - 'codex_deus_maximus'
+      - 'codex_deus_maximus.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  construct-system:
+    name: 🏗️ Constructing System
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Master
+        uses: actions/checkout@v4
+
+      - name: 📂 Create System Architecture
+        run: |
+          mkdir -p .github/workflows
+          mkdir -p src/app/agents
+          echo "✅ System directories ready."
+
+      - name: ⚙️ Install Monolith Workflow
+        run: |
+          # Looks for the Monolith file in root (with or without extension)
+          if [ -f "Thirstys_Monolith" ]; then
+            cp "Thirstys_Monolith" ".github/workflows/thirtys-monolith.yml"
+            echo "✅ Installed Thirstys_Monolith -> workflows"
+          elif [ -f "Thirstys_Monolith.yml" ]; then
+            cp "Thirstys_Monolith.yml" ".github/workflows/thirtys-monolith.yml"
+            echo "✅ Installed Thirstys_Monolith.yml -> workflows"
+          else
+            echo "⚠️ No Monolith blueprint found in root."
+          fi
+
+      - name: 🧠 Install Codex Agent
+        run: |
+          # Looks for the Agent file in root (with or without extension)
+          if [ -f "codex_deus_maximus" ]; then
+            cp "codex_deus_maximus" "src/app/agents/codex_deus_maximus.py"
+            echo "✅ Installed Codex Agent -> src/app/agents"
+          elif [ -f "codex_deus_maximus.py" ]; then
+            cp "codex_deus_maximus.py" "src/app/agents/codex_deus_maximus.py"
+            echo "✅ Installed Codex Agent -> src/app/agents"
+          else
+            echo "⚠️ No Codex blueprint found in root."
+          fi
+
+      - name: 💾 Commit Installation
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "🏗️ Constructor: Updated system from master blueprints"
+          file_pattern: ".github/workflows/thirtys-monolith.yml src/app/agents/codex_deus_maximus.py"

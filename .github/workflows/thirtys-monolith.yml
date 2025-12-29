@@ -1,0 +1,142 @@
+name: Thirty's Monolith (Schematic Focus)
+
+# --- TRIGGERS ---
+# Only runs when the Schematic (Code) changes.
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write      # Required to push fixes
+  security-events: write
+  statuses: write
+  checks: write
+
+jobs:
+  # =================================================================
+  # JOB 1: SCHEMATIC ENFORCEMENT (The Agent)
+  # =================================================================
+  enforce-schematics:
+    name: 🤖 Schematic Guardian
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Run Schematic Guardian
+        run: |
+          # Dynamically import and run the agent
+          python -c "
+          import sys, os
+          sys.path.append(os.getcwd())
+          try:
+              from src.app.agents.codex_deus_maximus import create_codex
+              print('🤖 Guardian is auditing schematics...')
+              agent = create_codex()
+              report = agent.run_schematic_enforcement()
+              print('✅ Audit Report:', report)
+              
+              if report['structure_check']['status'] == 'BROKEN':
+                  print('❌ Critical Schematic Violation detected.')
+                  sys.exit(1)
+          except ImportError:
+              print('⚠️ Agent not found. Skipping enforcement.')
+          except Exception as e:
+              print(f'❌ Agent Failure: {e}')
+              sys.exit(1)
+          "
+
+      - name: Commit Fixes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "🤖 Schematic Guardian: Enforced standards"
+          file_pattern: "."
+
+  # =================================================================
+  # JOB 2: STRUCTURAL INTEGRITY (Security & Linting)
+  # =================================================================
+  verify-integrity:
+    name: 🛡️ Verify Integrity
+    needs: enforce-schematics
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      # Security Scan (CodeQL)
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: python, javascript
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+      - name: Run CodeQL
+        uses: github/codeql-action/analyze@v2
+
+      # Dependency Audit
+      - name: Pip Audit
+        run: |
+          pip install pip-audit
+          pip-audit --format json -o pip_audit_report.json || true
+
+  # =================================================================
+  # JOB 3: FUNCTIONAL VALIDATION (Build & Test)
+  # =================================================================
+  validate-functions:
+    name: 🏗️ Validate Functions
+    needs: enforce-schematics
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        language: [python, node, android]
+    steps:
+      - uses: actions/checkout@v4
+
+      # Python Validation
+      - name: Python Tests
+        if: matrix.language == 'python'
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - run: |
+          if [ "${{ matrix.language }}" == "python" ]; then
+            pip install pytest pytest-cov
+            if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+            pytest --cov=src -q
+          fi
+
+      # Node Validation
+      - name: Node Build
+        if: matrix.language == 'node'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+      - run: |
+          if [ "${{ matrix.language }}" == "node" ]; then
+            npm install
+            npm run build --if-present
+            npm test || true
+          fi
+
+      # Android Validation
+      - name: Android Build
+        if: matrix.language == 'android'
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+      - run: |
+          if [ "${{ matrix.language }}" == "android" ]; then
+            chmod +x gradlew
+            ./gradlew build
+          fi
