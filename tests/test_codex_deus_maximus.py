@@ -1,12 +1,6 @@
 """Tests for Codex Deus Maximus - Schematic Guardian."""
 import os
-import sys
 import tempfile
-import shutil
-from pathlib import Path
-
-# Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from src.app.agents.codex_deus_maximus import CodexDeusMaximus, create_codex
 

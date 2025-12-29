@@ -43,9 +43,6 @@ dev = [
     "build>=0.10.0",
 ]
 
-[project.scripts]
-schematic-guardian = "src.app.agents.codex_deus_maximus:create_codex"
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
