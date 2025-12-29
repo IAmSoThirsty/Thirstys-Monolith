@@ -24,6 +24,41 @@ The pipeline operates in **3 Strict Stages**:
 
 ## 🚀 Installation & Setup
 
+### Prerequisites
+- Python 3.11 or higher
+- Git
+- Docker (optional, for containerized deployment)
+
+### Quick Start
+
+#### Option 1: Using the Setup Script (Recommended)
+```bash
+git clone https://github.com/IAmSoThirsty/Thirstys-Monolith.git
+cd Thirstys-Monolith
+./setup.sh
+source .venv/bin/activate
+```
+
+#### Option 2: Using Make
+```bash
+git clone https://github.com/IAmSoThirsty/Thirstys-Monolith.git
+cd Thirstys-Monolith
+make setup
+source .venv/bin/activate
+```
+
+#### Option 3: Manual Setup
+See [INSTALL.md](INSTALL.md) for detailed installation instructions.
+
+### Verify Installation
+```bash
+# Run tests
+pytest --cov=src -v
+
+# Run Schematic Guardian
+python -c "from src.app.agents.codex_deus_maximus import create_codex; agent = create_codex(); print(agent.run_schematic_enforcement())"
+```
+
 ### 1. The Monolith Workflow
 Ensure the master enforcement script is placed at:
 `.github/workflows/thirtys-monolith.yml`
@@ -36,6 +71,62 @@ The workflow relies on your custom agent to perform the audit. Ensure the source
 The Guardian enforces the existence of these core directories. Your build **will fail** if they are missing:
 * `.github/workflows/`
 * `src/`
+
+---
+
+## 🛠️ Development
+
+### Available Commands
+The project includes a `Makefile` with common development commands:
+
+```bash
+make help          # Show all available commands
+make setup         # Create virtual environment and install dependencies
+make test          # Run tests with coverage
+make lint          # Run linters (flake8, pylint)
+make format        # Format code with black
+make clean         # Remove build artifacts and cache files
+make docker-build  # Build Docker image
+make docker-run    # Run Schematic Guardian in Docker
+```
+
+### Running Tests
+```bash
+# All tests with coverage
+pytest --cov=src -v
+
+# Or using Make
+make test
+```
+
+### Docker Support
+Build and run with Docker:
+```bash
+# Build image
+docker compose build
+
+# Run Schematic Guardian
+docker compose up schematic-guardian
+
+# Run tests
+docker compose up test
+```
+
+---
+
+## 📦 Project Structure
+
+```
+Thirstys-Monolith/
+├── .github/workflows/     # CI/CD workflows
+├── src/app/agents/        # Schematic Guardian agent
+├── tests/                 # Test suite
+├── requirements.txt       # Python dependencies
+├── setup.py               # Package configuration
+├── Dockerfile            # Docker configuration
+├── Makefile              # Development commands
+└── INSTALL.md            # Detailed installation guide
+```
 
 ---
 
