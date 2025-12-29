@@ -71,7 +71,7 @@ class CodexDeusMaximus:
 
             for fn in filenames:
                 path = os.path.join(dirpath, fn)
-                
+
                 # Enforce formatting on specific types
                 if fn.endswith(('.py', '.md', '.json', '.yml', '.yaml')):
                     res = self.auto_fix_file(path)
@@ -89,18 +89,18 @@ class CodexDeusMaximus:
         for d in REQUIRED_DIRS:
             if not os.path.exists(os.path.join(root, d)):
                 missing.append(d)
-        
+
         status = "HEALTHY" if not missing else "BROKEN"
         if missing:
             logger.warning(f"Schematic Violation: Missing directories {missing}")
-        
+
         return {"status": status, "missing_directories": missing}
 
     def auto_fix_file(self, path: str) -> Dict[str, Any]:
         """Strictly enforces formatting standards (Tabs->Spaces, EOF Newline, Syntax Check)."""
         if not os.path.exists(path):
             return {"success": False, "error": "missing"}
-        
+
         try:
             with open(path, encoding="utf-8") as f:
                 content = f.read()
@@ -111,7 +111,7 @@ class CodexDeusMaximus:
             if path.endswith(".py"):
                 fixed = fixed.replace("\t", "    ") # No tabs
                 fixed = "\n".join(line.rstrip() for line in fixed.splitlines()) # No trailing whitespace
-                
+
                 # Safety: Check syntax before accepting
                 try:
                     ast.parse(fixed)

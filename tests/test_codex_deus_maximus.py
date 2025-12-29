@@ -26,10 +26,10 @@ class TestCodexDeusMaximus:
             # Create required directories
             os.makedirs(os.path.join(tmpdir, ".github", "workflows"))
             os.makedirs(os.path.join(tmpdir, "src"))
-            
+
             agent = create_codex()
             result = agent._validate_structure(tmpdir)
-            
+
             assert result["status"] == "HEALTHY"
             assert len(result["missing_directories"]) == 0
 
@@ -38,7 +38,7 @@ class TestCodexDeusMaximus:
         with tempfile.TemporaryDirectory() as tmpdir:
             agent = create_codex()
             result = agent._validate_structure(tmpdir)
-            
+
             assert result["status"] == "BROKEN"
             assert len(result["missing_directories"]) > 0
 
@@ -46,21 +46,21 @@ class TestCodexDeusMaximus:
         """Test Python file auto-fixing."""
         with tempfile.TemporaryDirectory() as tmpdir:
             test_file = os.path.join(tmpdir, "test.py")
-            
+
             # Write file with tabs and trailing whitespace
             with open(test_file, "w") as f:
                 f.write("def test():\n\tpass  \n")
-            
+
             agent = create_codex()
             result = agent.auto_fix_file(test_file)
-            
+
             assert result["success"] is True
             assert result["action"] == "fixed"
-            
+
             # Verify content was fixed
             with open(test_file, "r") as f:
                 content = f.read()
-            
+
             assert "\t" not in content
             assert "    pass" in content
 
@@ -68,21 +68,23 @@ class TestCodexDeusMaximus:
         """Test markdown file auto-fixing."""
         with tempfile.TemporaryDirectory() as tmpdir:
             test_file = os.path.join(tmpdir, "test.md")
-            
+
             # Write file with Windows line endings
-            with open(test_file, "wb") as f:
-                f.write(b"# Title\r\nContent\r\n")
-            
+            with open(test_file, "w", newline='') as f:
+                f.write("# Title\r\nContent")
+
             agent = create_codex()
             result = agent.auto_fix_file(test_file)
-            
+
             assert result["success"] is True
-            
+            assert result["action"] == "fixed"
+
             # Verify content was fixed
-            with open(test_file, "rb") as f:
+            with open(test_file, "r") as f:
                 content = f.read()
-            
-            assert b"\r\n" not in content
+
+            assert "\r" not in content
+            assert content.endswith("\n")
 
     def test_run_schematic_enforcement(self):
         """Test full schematic enforcement run."""
@@ -90,15 +92,15 @@ class TestCodexDeusMaximus:
             # Create required structure
             os.makedirs(os.path.join(tmpdir, ".github", "workflows"))
             os.makedirs(os.path.join(tmpdir, "src"))
-            
+
             # Create a test Python file
             test_file = os.path.join(tmpdir, "test.py")
             with open(test_file, "w") as f:
                 f.write("print('hello')")
-            
+
             agent = create_codex()
             report = agent.run_schematic_enforcement(tmpdir)
-            
+
             assert "structure_check" in report
             assert "fixes" in report
             assert "errors" in report
