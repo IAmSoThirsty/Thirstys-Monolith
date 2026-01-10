@@ -1,8 +1,8 @@
 # 🏛️ Thirty's Monolith: Schematic Guardian
 
-![Build Status](https://img.shields.io/badge/Schematic-Enforced-success?style=for-the-badge&logo=github)
-![Security](https://img.shields.io/badge/Integrity-Verified-blue?style=for-the-badge&logo=github-actions)
-![Agent](https://img.shields.io/badge/Agent-Codex%20Deus%20Maximus-purple?style=for-the-badge)
+[![Build Status](https://img.shields.io/badge/Schematic-Enforced-success?style=for-the-badge&logo=github)](https://github.com/IAmSoThirsty/Thirstys-Monolith/actions)
+[![Security](https://img.shields.io/badge/Integrity-Verified-blue?style=for-the-badge&logo=github-actions)](https://github.com/IAmSoThirsty/Thirstys-Monolith/security)
+[![Agent](https://img.shields.io/badge/Agent-Codex%20Deus%20Maximus-purple?style=for-the-badge)](https://github.com/IAmSoThirsty/Thirstys-Monolith/blob/master/src/app/agents/codex_deus_maximus.py)
 
 **The Strict Enforcer for Repository Integrity.**
 
