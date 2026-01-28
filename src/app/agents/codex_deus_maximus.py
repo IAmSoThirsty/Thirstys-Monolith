@@ -8,6 +8,7 @@ import json
 import logging
 import os
 import shutil
+import types
 from datetime import datetime, timezone
 from typing import Any, List, Dict
 
@@ -27,6 +28,11 @@ class CodexDeusMaximus:
     def __init__(self, data_dir: str = "data") -> None:
         self.data_dir = data_dir
         self.audit_path = os.path.join(self.data_dir, "schematic_audit.json")
+        # Ensure legacy method binding for compatibility
+        try:
+            self.auto_fix_file = types.MethodType(self.__class__.auto_fix_file, self)
+        except Exception:
+            pass
 
     def initialize(self) -> bool:
         logger.info("Schematic Guardian initialized. Mode: STRICT ENFORCEMENT.")
