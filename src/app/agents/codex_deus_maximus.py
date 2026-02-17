@@ -1,6 +1,7 @@
 """Codex Deus Maximus - Schematic Guardian.
 Repurposed to solely focus on repository integrity, structure validation, and auto-correction.
 """
+
 from __future__ import annotations
 
 import ast
@@ -21,6 +22,7 @@ REQUIRED_DIRS = [
     ".github/workflows",
     "src",
 ]
+
 
 class CodexDeusMaximus:
     """Schematic Guardian AI that enforces repository structure and code standards."""
@@ -45,7 +47,7 @@ class CodexDeusMaximus:
             entry = {
                 "ts": datetime.now(timezone.utc).isoformat(),
                 "action": action,
-                "details": details
+                "details": details,
             }
             with open(self.audit_path, "a", encoding="utf-8") as f:
                 f.write(json.dumps(entry) + "\n")
@@ -58,7 +60,7 @@ class CodexDeusMaximus:
         report = {
             "structure_check": self._validate_structure(root),
             "fixes": [],
-            "errors": []
+            "errors": [],
         }
 
         logger.info(f"Enforcing schematics on {root}...")
@@ -66,19 +68,27 @@ class CodexDeusMaximus:
         # Walk the repo to fix code files
         for dirpath, _, filenames in os.walk(root):
             # Ignore hidden/system folders
-            if any(part.startswith(".") or part in ("venv", "env", "__pycache__", "build", "dist") for part in dirpath.split(os.sep)):
+            if any(
+                part.startswith(".")
+                or part in ("venv", "env", "__pycache__", "build", "dist")
+                for part in dirpath.split(os.sep)
+            ):
                 continue
 
             for fn in filenames:
                 path = os.path.join(dirpath, fn)
 
                 # Enforce formatting on specific types
-                if fn.endswith(('.py', '.md', '.json', '.yml', '.yaml')):
+                if fn.endswith((".py", ".md", ".json", ".yml", ".yaml")):
                     res = self.auto_fix_file(path)
                     if res.get("success") and res.get("action") == "fixed":
-                        report["fixes"].append({"path": path, "backup": res.get("backup")})
+                        report["fixes"].append(
+                            {"path": path, "backup": res.get("backup")}
+                        )
                     elif not res.get("success"):
-                        report["errors"].append({"path": path, "error": res.get("error")})
+                        report["errors"].append(
+                            {"path": path, "error": res.get("error")}
+                        )
 
         self._audit("enforcement_run", report)
         return report
@@ -109,8 +119,10 @@ class CodexDeusMaximus:
 
             # --- RULE 1: Python Specifics ---
             if path.endswith(".py"):
-                fixed = fixed.replace("\t", "    ") # No tabs
-                fixed = "\n".join(line.rstrip() for line in fixed.splitlines()) # No trailing whitespace
+                fixed = fixed.replace("\t", "    ")  # No tabs
+                fixed = "\n".join(
+                    line.rstrip() for line in fixed.splitlines()
+                )  # No trailing whitespace
 
                 # Safety: Check syntax before accepting
                 try:
@@ -120,7 +132,7 @@ class CodexDeusMaximus:
 
             # --- RULE 2: General Text Files (.md, .yml, .json) ---
             elif path.endswith((".md", ".yml", ".yaml", ".json")):
-                fixed = fixed.replace("\r\n", "\n").replace("\r", "\n") # UNIX endings
+                fixed = fixed.replace("\r\n", "\n").replace("\r", "\n")  # UNIX endings
 
             # --- RULE 3: End of File Newline ---
             if fixed and not fixed.endswith("\n"):
@@ -138,6 +150,7 @@ class CodexDeusMaximus:
 
         except Exception as e:
             return {"success": False, "error": str(e)}
+
 
 # Factory
 def create_codex(data_dir: str = "data") -> CodexDeusMaximus:
