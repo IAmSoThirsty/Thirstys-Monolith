@@ -1,164 +1,125 @@
-# 🏛️ Thirty's Monolith: Schematic Guardian
+# Thirstys-Monolith
 
-[![Build Status](https://img.shields.io/badge/Schematic-Enforced-success?style=for-the-badge&logo=github)](https://github.com/IAmSoThirsty/Thirstys-Monolith/actions) [![Security](https://img.shields.io/badge/Integrity-Verified-blue?style=for-the-badge&logo=github-actions)](https://github.com/IAmSoThirsty/Thirstys-Monolith/security) [![Agent](https://img.shields.io/badge/Agent-Codex%20Deus%20Maximus-purple?style=for-the-badge)](https://github.com/IAmSoThirsty/Thirstys-Monolith/blob/master/src/app/agents/codex_deus_maximus.py)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue?style=flat-square)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE.txt)
+[![CI](https://img.shields.io/badge/CI-GitHub%20Actions-black?style=flat-square\&logo=github)](https://github.com/IAmSoThirsty/Thirstys-Monolith/actions)
 
-**The Strict Enforcer for Repository Integrity.**
+**Sovereign Stack multi-process runtime.** `monolith` is the execution kernel that ingests Thirsty-Lang task payloads, schedules them across isolated worker processes, enforces logical memory ownership, and exposes Prometheus metrics + Kubernetes health probes.
 
-Thirty's Monolith is a specialized, self-correcting CI/CD pipeline designed to maintain absolute schematic control over your codebase. It uses a custom AI agent to strictly enforce folder structure, file formatting, and syntax standards before allowing any build to proceed.
+---
 
-______________________________________________________________________
+## Architecture
 
-## ⚡ System Architecture
-
-The pipeline operates in **3 Strict Stages**:
-
-| Stage              | Job Name                | Function                                                                                                                                                                                                                       |
-| :----------------- | :---------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **1. Enforcement** | `🤖 Schematic Guardian` | The **Codex Deus Maximus** agent wakes up, scans the entire repository, and auto-corrects formatting (tabs, newlines) while validating Python syntax. If the required folder structure is broken, the build fails immediately. |
-| **2. Integrity**   | `🛡️ Verify Integrity`   | Runs **CodeQL** (Logic Analysis) and **Pip Audit** (Dependency Security) to ensure the code is safe and robust.                                                                                                                |
-| **3. Validation**  | `🏗️ Validate Functions` | A polyglot matrix that builds and tests the actual code artifacts (**Python/Pytest**, **Node/Webpack**, **Android/Gradle**).                                                                                                   |
-
-______________________________________________________________________
-
-## 🚀 Installation & Setup
-
-### Prerequisites
-
-- Python 3.11 or higher
-- Git
-- Docker (optional, for containerized deployment)
-
-### Quick Start
-
-#### Option 1: Using the Setup Script (Recommended)
-
-```bash
-git clone https://github.com/IAmSoThirsty/Thirstys-Monolith.git
-cd Thirstys-Monolith
-./setup.sh
-source .venv/bin/activate
+```
+Supervisor (main process)
+├─ multiprocessing.Queue  ──[TASK_SUBMIT]──►  Worker-0 ──► Scheduler ──► MemoryPool
+├─ multiprocessing.Queue  ──[TASK_SUBMIT]──►  Worker-1 ──► Scheduler ──► MemoryPool
+│                                                  │
+│  ◄────────────────[TASK_RESULT]─────────────────┘
+├─ HealthServer  :8080  /healthz /readyz
+└─ MetricsServer :9100  /metrics  (Prometheus)
 ```
 
-#### Option 2: Using Make
+- **Zero runtime dependencies** — pure Python stdlib.
+- **Process model:** `spawn` context; no fork-safety hazards.
+- **Cooperative scheduling:** highest-`priority` task runs first; deadline expiry → `CANCELLED`; quantum overruns are tracked as metrics.
+- **Memory isolation:** `MemoryPool` enforces owner, bounds, and read-only constraints in Python-space (simulation layer for Thirsty-Lang VM).
+
+---
+
+## Quick Start
 
 ```bash
-git clone https://github.com/IAmSoThirsty/Thirstys-Monolith.git
-cd Thirstys-Monolith
-make setup
-source .venv/bin/activate
+pip install -e ".[dev]"   # dev extras: pytest, ruff, mypy, black, …
+pytest -q                 # run all 40+ tests
 ```
 
-#### Option 3: Manual Setup
+```python
+from monolith import Supervisor, load_config
 
-See [INSTALL.md](INSTALL.md) for detailed installation instructions.
+with Supervisor(load_config()) as sup:
+    sup.submit_task({
+        "meta": {"owner": "demo-tenant", "priority": 10},
+        "agent": "retriever",
+        "input": {"query": "hello"},
+    })
+    results = sup.collect_results(timeout=2.0)
+    print(results)
+    # [{'id': '...', 'owner': 'demo-tenant', 'state': 'DONE', 'last_error': None}]
+```
 
-### Verify Installation
+### Full Thirsty-Lang Pipeline
+
+```python
+from thirsty_lang import parse_yaml, validate_and_normalize, ir_to_monolith_tasks
+from monolith import Supervisor, load_config
+
+ir = validate_and_normalize(parse_yaml(open("flow.tl.yaml").read()))
+with Supervisor(load_config()) as sup:
+    for payload in ir_to_monolith_tasks(ir):
+        sup.submit_task(payload)
+    results = sup.collect_results()
+```
+
+---
+
+## Package Structure
+
+```
+src/monolith/
+  __init__.py    # public API surface
+  models.py      # TaskState, TaskMetadata, Task
+  errors.py      # MonolithError, TaskExecutionError, MemoryErrorLogical, IPCError
+  config.py      # MonolithConfig (env-driven)
+  memory.py      # MemoryPool — logical isolation per task
+  ipc.py         # MessageType, Message, send(), recv()
+  logging.py     # NDJSON structured logging
+  metrics.py     # Prometheus Counter/Gauge + /metrics HTTP thread
+  health.py      # /healthz + /readyz HTTP for k8s probes
+  scheduler.py   # Priority scheduler with deadline enforcement
+  worker.py      # worker_main() — per-process event loop
+  supervisor.py  # Supervisor — spawn pool, lifecycle, collect_results
+```
+
+---
+
+## Configuration
+
+All settings are read from environment variables at process start.
+
+| Variable | Default | Description |
+|---|---|---|
+| `MONOLITH_NUM_WORKERS` | `4` | Number of worker processes to spawn |
+| `MONOLITH_QUANTUM_MS` | `10` | Cooperative scheduling quantum (ms) |
+| `MONOLITH_MEMORY_POOL_BYTES` | `67108864` | Logical memory per worker (64 MiB) |
+| `MONOLITH_LOG_LEVEL` | `INFO` | Python logging level |
+| `MONOLITH_METRICS_PORT` | `9100` | Prometheus `/metrics` port (0 = off) |
+| `MONOLITH_HEALTH_PORT` | `8080` | Health probe port (0 = off) |
+| `MONOLITH_IPC_SEND_TIMEOUT` | `5.0` | Seconds before `IPCError` on send |
+
+---
+
+## Development
 
 ```bash
+# Install dev extras
+pip install -e ".[dev]"
 
 # Run tests
+pytest -q
 
-pytest --cov=src -v
+# Lint
+ruff check src/ tests/
 
-# Run Schematic Guardian
+# Type-check
+mypy src/monolith/
 
-python -c "from src.app.agents.codex_deus_maximus import create_codex; agent = create_codex(); print(agent.run_schematic_enforcement())"
+# Audit dependencies
+pip-audit
 ```
 
-### 1. The Monolith Workflow
+---
 
-Ensure the master enforcement script is placed at: `.github/workflows/thirtys-monolith.yml`
+## License
 
-### 2. The Guardian Agent
-
-The workflow relies on your custom agent to perform the audit. Ensure the source code is present at: `src/app/agents/codex_deus_maximus.py`
-
-### 3. Required Directory Schematic
-
-The Guardian enforces the existence of these core directories. Your build **will fail** if they are missing:
-
-- `.github/workflows/`
-- `src/`
-
-______________________________________________________________________
-
-## 🛠️ Development
-
-### Available Commands
-
-The project includes a `Makefile` with common development commands:
-
-```bash
-make help          # Show all available commands
-make setup         # Create virtual environment and install dependencies
-make test          # Run tests with coverage
-make lint          # Run linters (flake8, pylint)
-make format        # Format code with black
-make clean         # Remove build artifacts and cache files
-make docker-build  # Build Docker image
-make docker-run    # Run Schematic Guardian in Docker
-```
-
-### Running Tests
-
-```bash
-
-# All tests with coverage
-
-pytest --cov=src -v
-
-# Or using Make
-
-make test
-```
-
-### Docker Support
-
-Build and run with Docker:
-
-```bash
-
-# Build image
-
-docker compose build
-
-# Run Schematic Guardian
-
-docker compose up schematic-guardian
-
-# Run tests
-
-docker compose up test
-```
-
-______________________________________________________________________
-
-## 📦 Project Structure
-
-```
-Thirstys-Monolith/
-├── .github/workflows/     # CI/CD workflows
-├── src/app/agents/        # Schematic Guardian agent
-├── tests/                 # Test suite
-├── requirements.txt       # Python dependencies
-├── setup.py               # Package configuration
-├── Dockerfile            # Docker configuration
-├── Makefile              # Development commands
-└── INSTALL.md            # Detailed installation guide
-```
-
-______________________________________________________________________
-
-## 🛠️ Enforcement Rules
-
-The **Schematic Guardian** automatically applies the following rules on every push:
-
-1. **Python:** Converts tabs to 4 spaces; strips trailing whitespace; ensures valid syntax.
-1. **Docs/Config:** Ensures UNIX line endings (`\n`) for `.md`, `.json`, and `.yml` files.
-1. **General:** Ensures every file ends with a single newline character.
-
-______________________________________________________________________
-
-## 📄 License
-
-MIT License © 2025 Thirstys-Hub
+MIT © Thirstys-Hub
