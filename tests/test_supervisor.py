@@ -1,8 +1,13 @@
+#                                           [2026-03-03 13:45]
+#                                          Productivity: Active
 from __future__ import annotations
+
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
-from monolith.supervisor import Supervisor
+
 from monolith.config import MonolithConfig
+from monolith.supervisor import Supervisor
 
 
 @pytest.fixture()
@@ -12,7 +17,7 @@ def cfg() -> MonolithConfig:
         quantum_ms=10,
         memory_pool_bytes=1024 * 1024,
         log_level="WARNING",
-        metrics_port=0,        # disable metrics server
+        metrics_port=0,  # disable metrics server
         ipc_send_timeout=2.0,
     )
 
@@ -62,6 +67,7 @@ class TestTaskSubmitAndCollect:
                 with Supervisor(config=cfg) as sup:
                     sup.submit_task({"meta": {"owner": "test", "priority": 0}})
                     import time
+
                     deadline = time.time() + 3.0
                     results = []
                     while time.time() < deadline and not results:

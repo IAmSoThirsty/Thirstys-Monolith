@@ -1,9 +1,14 @@
+#                                           [2026-03-03 13:45]
+#                                          Productivity: Active
 from __future__ import annotations
+
 import queue
-import pytest
 from unittest.mock import MagicMock, patch
-from monolith.ipc import Message, MessageType, send, recv
+
+import pytest
+
 from monolith.errors import IPCError
+from monolith.ipc import Message, MessageType, recv, send
 
 
 def _make_queue() -> queue.Queue:
@@ -28,7 +33,9 @@ class TestSend:
 class TestRecv:
     def test_recv_returns_message(self) -> None:
         q = _make_queue()
-        msg = Message(type=MessageType.TASK_RESULT, payload={"id": "abc", "state": "DONE"})
+        msg = Message(
+            type=MessageType.TASK_RESULT, payload={"id": "abc", "state": "DONE"}
+        )
         q.put(msg)
         received = recv(q, timeout=1.0)
         assert received.type == MessageType.TASK_RESULT

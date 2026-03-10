@@ -1,3 +1,5 @@
+<!--                                         [2026-03-03 13:45] -->
+<!--                                        Productivity: Active -->
 # Installation Guide - Thirsty's Monolith
 
 This guide will help you set up the Thirsty's Monolith development environment.

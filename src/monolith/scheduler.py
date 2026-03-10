@@ -1,15 +1,17 @@
+#                                           [2026-03-03 13:45]
+#                                          Productivity: Active
 from __future__ import annotations
+
 import time
+from multiprocessing import Queue
 from typing import List
 
-from multiprocessing import Queue
-
-from .errors import TaskExecutionError
-from .memory import MemoryPool
-from .models import Task, TaskMetadata, TaskState
-from .metrics import METRICS
-from .logging import get_logger
 from . import ipc
+from .errors import TaskExecutionError
+from .logging import get_logger
+from .memory import MemoryPool
+from .metrics import METRICS
+from .models import Task, TaskMetadata, TaskState
 
 log = get_logger(__name__)
 
@@ -61,14 +63,16 @@ class Scheduler:
         self._tasks.append(task)
         METRICS.tasks_submitted.inc()
         METRICS.worker_queue_depth.set(len(self._tasks))
-        log.debug("task enqueued", extra={"task_id": task.meta.id, "priority": task.meta.priority})
+        log.debug(
+            "task enqueued",
+            extra={"task_id": task.meta.id, "priority": task.meta.priority},
+        )
 
     def run_once(self) -> None:
         """Pick the highest-priority eligible task and execute one quantum."""
         now = time.time()
         ready_tasks = [
-            t for t in self._tasks
-            if t.state in {TaskState.PENDING, TaskState.WAITING}
+            t for t in self._tasks if t.state in {TaskState.PENDING, TaskState.WAITING}
         ]
         if not ready_tasks:
             return

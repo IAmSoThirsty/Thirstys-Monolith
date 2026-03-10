@@ -1,3 +1,5 @@
+#                                           [2026-03-03 13:45]
+#                                          Productivity: Active
 """
 Health check endpoint for the Monolith supervisor.
 
@@ -13,10 +15,11 @@ Status codes:
 """
 
 from __future__ import annotations
-from http.server import BaseHTTPRequestHandler, HTTPServer
+
 import json
 import threading
 import time
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from typing import Callable
 
 
@@ -55,10 +58,12 @@ class HealthServer:
         class _Handler(BaseHTTPRequestHandler):
             def do_GET(self) -> None:  # noqa: N802
                 if self.path == "/healthz":
-                    body = json.dumps({
-                        "status": "ok",
-                        "uptime_seconds": round(time.time() - start_time, 1),
-                    }).encode()
+                    body = json.dumps(
+                        {
+                            "status": "ok",
+                            "uptime_seconds": round(time.time() - start_time, 1),
+                        }
+                    ).encode()
                     self._respond(200, body)
                 elif self.path == "/readyz":
                     ready = readiness_check()

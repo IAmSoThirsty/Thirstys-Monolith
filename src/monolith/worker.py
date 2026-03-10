@@ -1,11 +1,14 @@
+#                                           [2026-03-03 13:45]
+#                                          Productivity: Active
 from __future__ import annotations
+
 from multiprocessing import Queue
 
+from . import ipc
 from .config import MonolithConfig, load_config
 from .logging import configure_logging, get_logger
 from .metrics import METRICS, start_metrics_server
 from .scheduler import Scheduler
-from . import ipc
 
 log = get_logger(__name__)
 

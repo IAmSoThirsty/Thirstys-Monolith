@@ -1,9 +1,14 @@
+#                                           [2026-03-03 13:45]
+#                                          Productivity: Active
 from __future__ import annotations
+
 import queue
+
 import pytest
-from monolith.scheduler import Scheduler
-from monolith.models import TaskState
+
 from monolith.errors import TaskExecutionError
+from monolith.models import TaskState
+from monolith.scheduler import Scheduler
 
 
 @pytest.fixture()
@@ -13,7 +18,9 @@ def result_q() -> queue.Queue:
 
 @pytest.fixture()
 def scheduler(result_q: queue.Queue) -> Scheduler:
-    return Scheduler(result_queue=result_q, quantum_ms=10, memory_pool_bytes=1024 * 1024)
+    return Scheduler(
+        result_queue=result_q, quantum_ms=10, memory_pool_bytes=1024 * 1024
+    )
 
 
 def _payload(name: str = "test", priority: int = 0) -> dict:
@@ -41,7 +48,9 @@ class TestEnqueue:
 
 
 class TestRunOnce:
-    def test_run_once_completes_task(self, scheduler: Scheduler, result_q: queue.Queue) -> None:
+    def test_run_once_completes_task(
+        self, scheduler: Scheduler, result_q: queue.Queue
+    ) -> None:
         scheduler.enqueue_from_payload(_payload())
         scheduler.run_once()
         assert result_q.qsize() == 1
@@ -52,7 +61,9 @@ class TestRunOnce:
         # Should not raise
         scheduler.run_once()
 
-    def test_failed_task_emits_result(self, scheduler: Scheduler, result_q: queue.Queue) -> None:
+    def test_failed_task_emits_result(
+        self, scheduler: Scheduler, result_q: queue.Queue
+    ) -> None:
         scheduler.enqueue_from_payload(_payload())
 
         def _raise(task):
@@ -68,6 +79,7 @@ class TestRunOnce:
         self, scheduler: Scheduler, result_q: queue.Queue
     ) -> None:
         import time
+
         payload = _payload()
         payload["meta"]["deadline"] = time.time() - 1.0  # already past
         scheduler.enqueue_from_payload(payload)

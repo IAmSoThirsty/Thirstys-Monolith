@@ -1,4 +1,7 @@
+#                                           [2026-03-03 13:45]
+#                                          Productivity: Active
 """Tests for Codex Deus Maximus - Schematic Guardian."""
+
 import os
 import tempfile
 
@@ -64,7 +67,7 @@ class TestCodexDeusMaximus:
             test_file = os.path.join(tmpdir, "test.md")
 
             # Write file with Windows line endings
-            with open(test_file, "w", newline='') as f:
+            with open(test_file, "w", newline="") as f:
                 f.write("# Title\r\nContent")
 
             agent = create_codex()

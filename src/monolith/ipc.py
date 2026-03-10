@@ -1,4 +1,7 @@
+#                                           [2026-03-03 13:45]
+#                                          Productivity: Active
 from __future__ import annotations
+
 from dataclasses import dataclass
 from enum import Enum, auto
 from multiprocessing import Queue
@@ -11,7 +14,7 @@ class MessageType(Enum):
     TASK_SUBMIT = auto()
     TASK_RESULT = auto()
     WORKER_STATUS = auto()
-    CONTROL = auto()   # shutdown, reload, pause
+    CONTROL = auto()  # shutdown, reload, pause
 
 
 @dataclass
