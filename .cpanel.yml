@@ -1,0 +1,6 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/$USER/public_html/projects/monolith
+    - /bin/mkdir -p $DEPLOYPATH
+    - /bin/cp -R web/. $DEPLOYPATH/
